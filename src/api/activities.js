@@ -36,7 +36,7 @@ export async function createActivity(token, activity) {
   }
 }
 
-export async function deleteActivity(id, token) {
+export async function deleteActivity(token, id) {
   const res = await fetch(API + "/activities/" + id, {
     method: "DELETE",
     headers: {
@@ -47,5 +47,16 @@ export async function deleteActivity(id, token) {
   if (!res.ok) {
     const results = await res.json();
     throw Error(results.message);
+  }
+}
+
+export async function getAnActivity(id) {
+  try {
+    const response = await fetch(API + "/activities/" + id);
+    const result = await response.json();
+    return result;
+  } catch (e) {
+    console.error(e);
+    return [];
   }
 }

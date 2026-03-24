@@ -1,27 +1,12 @@
-import { useAuth } from "../auth/AuthContext";
-import { deleteActivity } from "../api/activities";
+import { Link } from "react-router";
 
-export default function ActivityList({ activities, syncActivities, setError }) {
-  const { token } = useAuth();
-  const tryDelete = async (id) => {
-    setError(null);
-    try {
-      await deleteActivity(id, token);
-      syncActivities();
-    } catch (e) {
-      setError(e.message);
-    }
-  };
-
+export default function ActivityList({ activities }) {
   return (
     <ul>
       {activities.map((activity) => (
-        <>
-          <li key={activity.id}>{activity.name}</li>
-          {token && (
-            <button onClick={() => tryDelete(activity.id)}>Delete</button>
-          )}
-        </>
+        <li key={activity.id}>
+          <Link to={"/activityDetails/" + activity.id}>{activity.name}</Link>
+        </li>
       ))}
     </ul>
   );
