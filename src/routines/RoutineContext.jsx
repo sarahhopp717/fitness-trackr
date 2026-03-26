@@ -24,7 +24,7 @@ export function RoutineProvider({ children }) {
       throw Error("You must be signed in to create a routine.");
     }
 
-    const response = await fetch(API + "/routines", {
+    const response = await fetch(API + "routines", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,25 +33,59 @@ export function RoutineProvider({ children }) {
       body: JSON.stringify(routine),
     });
 
+    const result = await response.json();
+
     if (!response.ok) {
-      const result = await response.json();
-      throw Error(result.message);
+      throw Error(result.message || result.error || "Failed to create routine");
     }
+    setRoutines((prev) => [result, ...prev]);
+    return result;
   };
 
   const createSet = async (token, setInfo) => {
-    const response = await fetch(API + "/sets", {
-      method: "POST",
+    const response = await fetch(
+      `${API}routines/${setInfo.routineId}/activities`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({
+          activityId: setInfo.activityId,
+          count: setInfo.count,
+          duration: setInfo.duration || 10,
+        }),
+      },
+    );
+    const result = await response.json();
+    if (!response.ok) throw Error(result.message);
+
+    await getARoutine(setInfo.routineId);
+    return result;
+  };
+
+  const deleteRoutine = async (token, id) => {
+    const response = await fetch(`${API}routines/${id}`, {
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(setInfo),
     });
-    if (!response.ok) {
-      const result = await response.json();
-      throw Error(result.message);
+
+    if (response.status === 204) {
+      setRoutines((prev) => prev.filter((r) => r.id !== id));
+      return;
     }
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw Error(result.message || "Could not delete routine");
+    }
+
+    setRoutines((prev) => prev.filter((r) => r.id !== id));
   };
 
   const value = {
@@ -61,6 +95,7 @@ export function RoutineProvider({ children }) {
     routine,
     createRoutine,
     createSet,
+    deleteRoutine,
   };
   return (
     <RoutineContext.Provider value={value}>{children}</RoutineContext.Provider>

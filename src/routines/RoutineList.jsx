@@ -5,7 +5,9 @@ import { Link } from "react-router";
 export default function RoutineList() {
   const { getRoutines, routines } = useRoutine();
 
-  useEffect(() => getRoutines(), []);
+  useEffect(() => {
+    getRoutines();
+  }, []);
   return (
     <>
       <h1>Routine List</h1>

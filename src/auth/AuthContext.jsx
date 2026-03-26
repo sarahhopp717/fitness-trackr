@@ -14,6 +14,18 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState();
+  const [user, setUser] = useState(null);
+
+  const fetchUser = async (token) => {
+    const response = await fetch(API + "/users/me", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
+    const result = await response.json();
+    setUser(result);
+  };
 
   const register = async (credentials) => {
     const response = await fetch(API + "/users/register", {
@@ -39,11 +51,15 @@ export function AuthProvider({ children }) {
       throw Error(result.message);
     }
     setToken(result.token);
+    await fetchUser(result.token);
   };
 
-  const logout = () => setToken(null);
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+  };
 
-  const value = { token, register, login, logout };
+  const value = { token, register, login, logout, user };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

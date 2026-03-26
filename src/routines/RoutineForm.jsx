@@ -4,12 +4,18 @@ import { useAuth } from "../auth/AuthContext";
 export default function RoutineForm() {
   const { createRoutine } = useRoutine();
   const { token } = useAuth();
-  const handleSubmit = (formData) => {
+
+  const handleSubmit = async (formData) => {
     const routine = {
       name: formData.get("name"),
       goal: formData.get("goal"),
+      isPublic: true,
     };
-    createRoutine(token, routine);
+    try {
+      await createRoutine(token, routine);
+    } catch (error) {
+      alert("Error: " + error.message);
+    }
   };
 
   return (
@@ -20,10 +26,10 @@ export default function RoutineForm() {
           <input type="text" name="name" />
         </label>
         <label>
-          Description
+          Goal
           <input type="text" name="goal" />
         </label>
-        <button>Add Routine</button>
+        <button type="submit">Add Routine</button>
       </form>
     </>
   );
