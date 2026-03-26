@@ -4,11 +4,14 @@ import App from "./App.jsx";
 import { BrowserRouter } from "react-router";
 
 import { AuthProvider } from "./auth/AuthContext";
+import { RoutineProvider } from "./routines/RoutineContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
     <BrowserRouter>
-      <App />
+      <RoutineProvider>
+        <App />
+      </RoutineProvider>
     </BrowserRouter>
   </AuthProvider>,
 );
